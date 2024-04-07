@@ -109,6 +109,7 @@ const (
 	OrderExecutionTypeCalculated  OrderExecutionType = "CALCULATED"
 	OrderExecutionTypeExpired     OrderExecutionType = "EXPIRED"
 	OrderExecutionTypeTrade       OrderExecutionType = "TRADE"
+	OrderExecutionTypeAmendment   OrderExecutionType = "AMENDMENT"
 
 	OrderStatusTypeNew             OrderStatusType = "NEW"
 	OrderStatusTypePartiallyFilled OrderStatusType = "PARTIALLY_FILLED"
