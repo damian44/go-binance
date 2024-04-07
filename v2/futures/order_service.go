@@ -13,23 +13,24 @@ import (
 
 // CreateOrderService create order
 type CreateOrderService struct {
-	c                *Client
-	symbol           string
-	side             SideType
-	positionSide     *PositionSideType
-	orderType        OrderType
-	timeInForce      *TimeInForceType
-	quantity         string
-	reduceOnly       *bool
-	price            *string
-	newClientOrderID *string
-	stopPrice        *string
-	workingType      *WorkingType
-	activationPrice  *string
-	callbackRate     *string
-	priceProtect     *bool
-	newOrderRespType NewOrderRespType
-	closePosition    *bool
+	c                 *Client
+	symbol            string
+	side              SideType
+	positionSide      *PositionSideType
+	orderType         OrderType
+	timeInForce       *TimeInForceType
+	quantity          string
+	reduceOnly        *bool
+	price             *string
+	newClientOrderID  *string
+	origClientOrderId *string
+	stopPrice         *string
+	workingType       *WorkingType
+	activationPrice   *string
+	callbackRate      *string
+	priceProtect      *bool
+	newOrderRespType  NewOrderRespType
+	closePosition     *bool
 }
 
 // Symbol set symbol
@@ -86,6 +87,12 @@ func (s *CreateOrderService) NewClientOrderID(newClientOrderID string) *CreateOr
 	return s
 }
 
+// NewOrigClientId set origClientOrderId
+func (s *CreateOrderService) NewOrigClientOrderID(origClientOrderId string) *CreateOrderService {
+	s.origClientOrderId = &origClientOrderId
+	return s
+}
+
 // StopPrice set stopPrice
 func (s *CreateOrderService) StopPrice(stopPrice string) *CreateOrderService {
 	s.stopPrice = &stopPrice
@@ -129,9 +136,12 @@ func (s *CreateOrderService) ClosePosition(closePosition bool) *CreateOrderServi
 }
 
 func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, opts ...RequestOption) (data []byte, header *http.Header, err error) {
-
+	method := http.MethodPost
+	if s.origClientOrderId != nil {
+		method = http.MethodPut
+	}
 	r := &request{
-		method:   http.MethodPost,
+		method:   method,
 		endpoint: endpoint,
 		secType:  secTypeSigned,
 	}
@@ -159,6 +169,11 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 	if s.newClientOrderID != nil {
 		m["newClientOrderId"] = *s.newClientOrderID
 	}
+
+	if s.origClientOrderId != nil {
+		m["origClientOrderId"] = *s.origClientOrderId
+	}
+
 	if s.stopPrice != nil {
 		m["stopPrice"] = *s.stopPrice
 	}
@@ -178,6 +193,7 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 		m["closePosition"] = *s.closePosition
 	}
 	r.setFormParams(m)
+	fmt.Println("call api", r)
 	data, header, err = s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return []byte{}, &http.Header{}, err
