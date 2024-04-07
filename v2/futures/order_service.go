@@ -193,7 +193,6 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 		m["closePosition"] = *s.closePosition
 	}
 	r.setFormParams(m)
-	fmt.Println("call api", r)
 	data, header, err = s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return []byte{}, &http.Header{}, err
